@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Image Styling Example</title>
+  <style>
+    /* Your CSS code */
+    .image {
+      position: absolute; 
+      top: 0px; 
+      left: 0px; 
+      width: 1176px; 
+      height: 589px; 
+      border-radius: 8px; /* border-xl */
+    }
+  </style>
+</head>
+<body>
+
+  <!-- HTML Image Element with Applied CSS Class -->
+  <img src="your_image_path.jpg" class="image" alt="Your Image">
+
+</body>
+</html>
