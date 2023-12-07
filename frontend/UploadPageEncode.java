@@ -8,14 +8,15 @@ import java.awt.dnd.*;
 import java.awt.image.BufferedImage;
 import java.awt.image.DataBufferByte;
 import java.io.File;
+import java.nio.ByteBuffer;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.nio.ByteBuffer;
 import java.nio.file.Files;
 import java.nio.file.StandardOpenOption;
 import java.security.Key;
 import java.security.KeyPair;
 import java.security.KeyPairGenerator;
+import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.security.PrivateKey;
 import java.security.PublicKey;
@@ -23,6 +24,7 @@ import java.util.List;
 
 public class UploadPageEncode extends JFrame {
     private static final String ALGORITHM = "RSA";
+    private File selectedFile;
 
     public UploadPageEncode() {
         setTitle("Upload and Encode");
@@ -49,7 +51,6 @@ public class UploadPageEncode extends JFrame {
         JButton browseButton = new JButton("Browse Files");
         browseButton.setPreferredSize(new Dimension(120, 30));
         browseButton.addActionListener(e -> {
-            // Add your browse button functionality here
             openFileChooser();
         });
         firstBoxPanel.add(browseButton);
@@ -60,12 +61,11 @@ public class UploadPageEncode extends JFrame {
         JButton downloadButton = new JButton("Get Key");
         downloadButton.setPreferredSize(new Dimension(120, 30));
         downloadButton.addActionListener(e -> {
-            // Add your download button functionality here
             openKeyDialog();
         });
 
         // Customize the size, font, and color of the text
-        JLabel encodedTextLabel = new JLabel("                                Content has been ENCODED");
+        JLabel encodedTextLabel = new JLabel("Content has been ENCODED");
         encodedTextLabel.setFont(new Font("Arial", Font.BOLD, 30));
         encodedTextLabel.setForeground(Color.BLACK);
 
@@ -77,7 +77,6 @@ public class UploadPageEncode extends JFrame {
         JButton homeButton = new JButton("Home");
         homeButton.setPreferredSize(new Dimension(120, 30));
         homeButton.addActionListener(e -> {
-            // Add your home button functionality here
             goHome();
         });
         secondBoxPanel.add(homeButton, BorderLayout.WEST);
@@ -88,14 +87,14 @@ public class UploadPageEncode extends JFrame {
         setContentPane(panel);
         setLocationRelativeTo(null);
     }
+
     private void goHome() {
+        dispose();
         // Add your logic to navigate back to the Home.java class
         // For example:
-        dispose(); // Close the current frame
-        Home home = new Home(); // Assuming Home is the name of your home class
-        home.setVisible(true); // Open the Home.java class
+        Home home = new Home();
+        home.setVisible(true);
     }
-    
 
     private JPanel createOutlinedBoxPanel(String title) {
         JPanel panel = new JPanel() {
@@ -111,7 +110,7 @@ public class UploadPageEncode extends JFrame {
         };
 
         panel.setLayout(new BorderLayout());
-        panel.setBorder(BorderFactory.createEmptyBorder(10, 20, 10, 20)); // Adjust border size
+        panel.setBorder(BorderFactory.createEmptyBorder(10, 20, 10, 20));
 
         return panel;
     }
@@ -130,7 +129,7 @@ public class UploadPageEncode extends JFrame {
         };
 
         panel.setLayout(new BorderLayout());
-        panel.setBorder(BorderFactory.createEmptyBorder(90, 90, 90, 90)); // Adjust border size
+        panel.setBorder(BorderFactory.createEmptyBorder(90, 90, 90, 90));
 
         DropTarget dropTarget = new DropTarget(panel, new DropTargetAdapter() {
             @Override
@@ -151,79 +150,80 @@ public class UploadPageEncode extends JFrame {
     }
 
     private void handleDroppedFiles(List<File> files) {
+        selectedFile = files.get(0);
         // Assuming the first dropped file is an image
-        File imageFile = files.get(0);
-        encryptAndSaveImage(imageFile);
+        encryptAndSaveImage(selectedFile);
     }
 
     private void openKeyDialog() {
+        // Assuming encryptedImage is the result of encryption
+        String userMessage = getUserMessage();
+        byte[] encryptedImage = performRsaWithXor(selectedFile, userMessage);
+    
         // Add your key copy functionality here
-        String key = generateKey();
+        String key = generateKey(encryptedImage);
         StringSelection stringSelection = new StringSelection(key);
         Clipboard clipboard = Toolkit.getDefaultToolkit().getSystemClipboard();
         clipboard.setContents(stringSelection, null);
         JOptionPane.showMessageDialog(this, "Key copied to clipboard:\n" + key, "Key Information", JOptionPane.INFORMATION_MESSAGE);
     }
+    
+    private String getUserMessage() {
+        // You can use a JOptionPane or any other method to get user input for the message
+        return JOptionPane.showInputDialog(this, "Enter the message to encode:");
+    }
+    
 
-    private void openFileChooser() {
-        JFileChooser fileChooser = new JFileChooser();
-        int result = fileChooser.showOpenDialog(this);
+    private String generateKey(byte[] encryptedData) {
+        try {
+            MessageDigest digest = MessageDigest.getInstance("SHA-256");
+            byte[] hashedBytes = digest.digest(encryptedData);
 
-        if (result == JFileChooser.APPROVE_OPTION) {
-            File selectedFile = fileChooser.getSelectedFile();
-            JOptionPane.showMessageDialog(this, "Selected file: " + selectedFile.getName());
-            encryptAndSaveImage(selectedFile);
+            StringBuilder keyBuilder = new StringBuilder();
+            for (byte b : hashedBytes) {
+                keyBuilder.append(String.format("%02x", b));
+            }
+
+            return keyBuilder.toString();
+        } catch (Exception e) {
+            e.printStackTrace();
+            return "ErrorGeneratingKey";
         }
     }
 
-    private String generateKey() {
-        return "GeneratedKey123";
-    }
-
-    private void encryptAndSaveImage(File imageFile) {
-        byte[] encryptedImage = performAesWithLsb(imageFile);
-        Path filePath = saveEncryptedImage(encryptedImage);
-        JOptionPane.showMessageDialog(this, "Image encrypted and saved:\n" + filePath, "Encryption Complete", JOptionPane.INFORMATION_MESSAGE);
-    }
-    private byte[] performEncryption(File file) {
-        if (isTextFile(file)) {
-            return performRsaWithXor(file);
-        } else {
-            return performAesWithLsb(file);
-        }
-    }
     private boolean isTextFile(File file) {
         return file.getName().toLowerCase().endsWith(".txt");
     }
-    private byte[] performRsaWithXor(File textFile) {
-        try {
-            // Read the content of the text file
-            byte[] fileContent = Files.readAllBytes(Paths.get(textFile.getAbsolutePath()));
 
+    private byte[] performRsaWithXor(String userMessage) {
+        try {
+            // Convert the user message to bytes
+            byte[] messageBytes = userMessage.getBytes();
+    
             // Generate RSA key pair
             KeyPair keyPair = generateKeyPair();
             PublicKey publicKey = keyPair.getPublic();
             PrivateKey privateKey = keyPair.getPrivate();
-
-            // Encrypt the file content using RSA
-            byte[] encryptedContent = encryptWithRSA(fileContent, publicKey);
-
+    
+            // Encrypt the message using RSA
+            byte[] encryptedContent = encryptWithRSA(messageBytes, publicKey);
+    
             // XOR the encrypted content
             byte[] xorEncryptedContent = xorOperation(encryptedContent);
-
-            // Save the XORed content to a new file
-            Path filePath = saveXorEncryptedData(xorEncryptedContent, textFile);
-
+    
             return xorEncryptedContent;
         } catch (Exception e) {
             e.printStackTrace();
             return new byte[0];
         }
     }
+    
+    
+    
 
     private KeyPair generateKeyPair() throws NoSuchAlgorithmException {
         KeyPairGenerator keyPairGenerator = KeyPairGenerator.getInstance(ALGORITHM);
-        keyPairGenerator.initialize(2048); // Adjust the key size as needed
+        keyPairGenerator.initialize(2048);
         return keyPairGenerator.generateKeyPair();
     }
 
@@ -233,19 +233,21 @@ public class UploadPageEncode extends JFrame {
         return cipher.doFinal(data);
     }
 
-    private byte[] xorOperation(byte[] data) {
-        // TODO: Implement XOR logic here
-        // Example: XOR each byte with a constant value
-        byte xorKey = (byte) 0xAA;
+    private byte[] xorOperation(byte[] data, byte[] userMessageBytes) {
+        // XOR the encrypted content with the user message
+        int messageLength = userMessageBytes.length;
     
-        for (int i = 0; i < data.length; i++) {
-            data[i] = (byte) (data[i] ^ xorKey);
+        for (int i = 0; i < messageLength; i++) {
+            for (int j = 7; j >= 0; j--) {
+                data[i] &= ~(1 << 0); // Clear the LSB
+                data[i] |= ((userMessageBytes[i] >> j) & 1) << 0;
+            }
         }
     
         return data;
     }
+    
     private Path saveXorEncryptedData(byte[] xorEncryptedData, File textFile) {
-        // Save the XOR encrypted data to a file
         Path filePath = Paths.get("C:/Users/akank/OneDrive/Documents/projects/Digital-Steganography-Using-JAVA/saved/xor_encrypted_data.txt");
         try {
             Files.write(filePath, xorEncryptedData, StandardOpenOption.CREATE, StandardOpenOption.WRITE);
@@ -254,35 +256,31 @@ public class UploadPageEncode extends JFrame {
         }
         return filePath;
     }
-    private byte[] performAesWithLsb(File imageFile) {
+
+    private byte[] performAesWithLsb(String userMessage) {
         try {
-            BufferedImage originalImage = ImageIO.read(imageFile);
+            // Convert the user message to bytes
+            byte[] messageBytes = userMessage.getBytes();
+    
+            // Read the original image file
+            BufferedImage originalImage = ImageIO.read(selectedFile);
             byte[] imageBytes = ((DataBufferByte) originalImage.getRaster().getDataBuffer()).getData();
-
-            String keyString = "YourSecretKey";
-            byte[] keyData = keyString.getBytes();
-            Key key = new SecretKeySpec(keyData, "AES");
-
-            Cipher cipher = Cipher.getInstance("AES/ECB/PKCS5Padding");
-            cipher.init(Cipher.ENCRYPT_MODE, key);
-            byte[] encryptedBytes = cipher.doFinal(imageBytes);
-
-            // Embed data using LSB steganography
-            String secretMessage = "YourSecretMessage";
-            byte[] messageBytes = secretMessage.getBytes();
-
+    
+            // Perform AES encryption on the image bytes
+            byte[] encryptedBytes = performAesEncryption(imageBytes);
+    
+            // Embed the message using LSB steganography
             embedMessage(encryptedBytes, messageBytes);
-
+    
             return encryptedBytes;
         } catch (Exception e) {
             e.printStackTrace();
             return new byte[0];
         }
     }
-
+    
     private void embedMessage(byte[] container, byte[] message) {
         int messageLength = message.length;
-
         ByteBuffer buffer = ByteBuffer.allocate(Integer.BYTES);
         buffer.putInt(messageLength);
         byte[] lengthBytes = buffer.array();
@@ -290,7 +288,7 @@ public class UploadPageEncode extends JFrame {
         int offset = 0;
         for (int i = 0; i < lengthBytes.length; i++) {
             for (int j = 7; j >= 0; j--) {
-                container[offset] &= ~(1 << 0); // Clear the LSB
+                container[offset] &= ~(1 << 0);
                 container[offset] |= ((lengthBytes[i] >> j) & 1) << 0;
                 offset++;
             }
@@ -298,17 +296,14 @@ public class UploadPageEncode extends JFrame {
 
         for (byte b : message) {
             for (int i = 7; i >= 0; i--) {
-                container[offset] &= ~(1 << 0); // Clear the LSB
+                container[offset] &= ~(1 << 0);
                 container[offset] |= ((b >> i) & 1) << 0;
                 offset++;
             }
         }
     }
 
-
     private Path saveEncryptedImage(byte[] encryptedImage) {
-        // TODO: Save the encrypted image to a file
-        // Example: Save the byte array to a file using java.nio.file.Path
         Path filePath = Paths.get("C:/Users/akank/OneDrive/Documents/projects/Digital-Steganography-Using-JAVA/saved/image.png");
         try {
             Files.write(filePath, encryptedImage, StandardOpenOption.CREATE, StandardOpenOption.WRITE);
@@ -316,6 +311,38 @@ public class UploadPageEncode extends JFrame {
             e.printStackTrace();
         }
         return filePath;
+    }
+
+    private void encryptAndSaveImage(String userMessage) {
+        byte[] encryptedImage;
+    
+        if (isTextFile(selectedFile)) {
+            encryptedImage = performRsaWithXor(userMessage);
+        } else {
+            encryptedImage = performAesWithLsb(userMessage);
+        }
+    
+        // Save the encrypted image to a file
+        Path filePath = saveEncryptedImage(encryptedImage);
+        JOptionPane.showMessageDialog(this, "Image encrypted and saved:\n" + filePath, "Encryption Complete", JOptionPane.INFORMATION_MESSAGE);
+    }
+    
+    
+
+    private void openFileChooser() {
+        JFileChooser fileChooser = new JFileChooser();
+        int result = fileChooser.showOpenDialog(this);
+    
+        if (result == JFileChooser.APPROVE_OPTION) {
+            selectedFile = fileChooser.getSelectedFile();
+            JOptionPane.showMessageDialog(this, "Selected file: " + selectedFile.getName());
+    
+            // Ask the user to input a message
+            String userMessage = JOptionPane.showInputDialog(this, "Enter the message to encode:");
+    
+            // Perform encryption with the user's message and save the image
+            encryptAndSaveImage(selectedFile, userMessage);
+        }
     }
 
     public static void main(String[] args) {
