@@ -17,9 +17,7 @@ import java.awt.image.DataBufferByte;
 import java.awt.image.BufferedImage;
 
 public class UploadPageDecode extends JFrame {
-
-    //private JTextArea droppedFilesTextArea;
-    private final String predefinedKey = "YourPredefinedKey"; // Replace with your actual key
+    private final String predefinedKey = "YourPredefinedKey"; 
     private File selectedFile;
     public UploadPageDecode() {
     setTitle("Upload and Decode");
@@ -46,7 +44,6 @@ public class UploadPageDecode extends JFrame {
         JButton browseButton = new JButton("Browse Files");
         browseButton.setPreferredSize(new Dimension(120, 30)); 
         browseButton.addActionListener(e -> {
-            // Add your browse button functionality here
             openFileChooser();
         });
         firstBoxPanel.add(browseButton);
@@ -59,13 +56,12 @@ public class UploadPageDecode extends JFrame {
         JButton homeButton = new JButton("Home");
         downloadButton.setPreferredSize(new Dimension(120, 30)); 
         downloadButton.addActionListener(e -> {
-            // Add your download button functionality here
             openKeyDialog();
         });
         homeButton.setPreferredSize(new Dimension(120, 30));
         homeButton.addActionListener(e -> goHome());
 
-        JLabel encodedTextLabel = new JLabel("                                Content has been DECODED");
+        JLabel encodedTextLabel = new JLabel("                      Content has been DECODED");
         encodedTextLabel.setFont(new Font("Arial", Font.BOLD, 30));
         encodedTextLabel.setForeground(Color.BLACK);
 
@@ -81,10 +77,8 @@ public class UploadPageDecode extends JFrame {
         setLocationRelativeTo(null);
     }
     private void goHome() {
-        // Add your logic to navigate back to the Home.java class
-        // For example:
-        dispose(); // Close the current frame
-        new Home().setVisible(true); // Open the Home.java class
+        dispose(); // 
+        new Home().setVisible(true); //Home.java class
     }
 
 
@@ -182,8 +176,6 @@ public class UploadPageDecode extends JFrame {
         return enteredKey.equals(predefinedKey);
     }
     private void decryptFiles() {
-    // Assume the selectedFile is the file you want to decrypt
-    // You need to modify this logic based on your actual decryption requirements
 
     if (isTextFile(selectedFile)) {
         // Decrypt text file using RSA with XOR

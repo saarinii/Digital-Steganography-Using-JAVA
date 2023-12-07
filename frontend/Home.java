@@ -16,7 +16,7 @@ public class Home extends JFrame {
 
         JPanel panel = new JPanel(new BorderLayout());
 
-        ImageIcon placeholderImage = new ImageIcon("home.png"); 
+        ImageIcon placeholderImage = new ImageIcon("resources/h.png"); 
         JLabel imageLabel = new JLabel(placeholderImage);
         imageLabel.setBorder(BorderFactory.createEmptyBorder(50, 50, 50, 50)); 
         panel.add(imageLabel, BorderLayout.CENTER);
@@ -31,30 +31,30 @@ public class Home extends JFrame {
         decodeButton.setPreferredSize(buttonSize);
 
         // text size
-        Font customFont = new Font("Arial", Font.PLAIN, 18); // Adjust the font and size as needed
+        Font customFont = new Font("Arial", Font.PLAIN, 18); 
         encodeButton.setFont(customFont);
         decodeButton.setFont(customFont);
 
         // bordercolor of buttons 
-        Color purpleColor = new Color(118, 57, 111); // RGB values for purple
-        Border purpleBorder = BorderFactory.createLineBorder(purpleColor, 4); // Adjust the border size as needed
+        Color purpleColor = new Color(118, 57, 111); 
+        Border purpleBorder = BorderFactory.createLineBorder(purpleColor, 4); 
         encodeButton.setBorder(purpleBorder);
         decodeButton.setBorder(purpleBorder);
 
         // text color and font for the "ENCODE" button
-        Color encodeButtonTextColor = new Color(118, 57, 111); // RGB values for text color
+        Color encodeButtonTextColor = new Color(118, 57, 111); 
         encodeButton.setForeground(encodeButtonTextColor);
-        Font encodeButtonFont = new Font("Epilogue", Font.BOLD, 20); // Adjust the font and size as needed
+        Font encodeButtonFont = new Font("Epilogue", Font.BOLD, 20); 
         encodeButton.setFont(encodeButtonFont);
 
         // text color and font for the "DECODE" button
-        Color decodeButtonTextColor = new Color(118, 57, 111); // RGB values for text color
+        Color decodeButtonTextColor = new Color(118, 57, 111);
         decodeButton.setForeground(decodeButtonTextColor);
-        Font decodeButtonFont = new Font("Epilogue", Font.BOLD, 20); // Adjust the font and size as needed
+        Font decodeButtonFont = new Font("Epilogue", Font.BOLD, 20); 
         decodeButton.setFont(decodeButtonFont);
 
 
-        // Add action listeners to the buttons
+        // Action listeners to the buttons
         encodeButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
