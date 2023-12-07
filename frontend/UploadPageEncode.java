@@ -49,7 +49,6 @@ public class UploadPageEncode extends JFrame {
         JButton browseButton = new JButton("Browse Files");
         browseButton.setPreferredSize(new Dimension(120, 30));
         browseButton.addActionListener(e -> {
-            // Add your browse button functionality here
             openFileChooser();
         });
         firstBoxPanel.add(browseButton);
@@ -60,12 +59,11 @@ public class UploadPageEncode extends JFrame {
         JButton downloadButton = new JButton("Get Key");
         downloadButton.setPreferredSize(new Dimension(120, 30));
         downloadButton.addActionListener(e -> {
-            // Add your download button functionality here
             openKeyDialog();
         });
 
         // Customize the size, font, and color of the text
-        JLabel encodedTextLabel = new JLabel("                                Content has been ENCODED");
+        JLabel encodedTextLabel = new JLabel("                     Content has been ENCODED");
         encodedTextLabel.setFont(new Font("Arial", Font.BOLD, 30));
         encodedTextLabel.setForeground(Color.BLACK);
 
@@ -77,7 +75,6 @@ public class UploadPageEncode extends JFrame {
         JButton homeButton = new JButton("Home");
         homeButton.setPreferredSize(new Dimension(120, 30));
         homeButton.addActionListener(e -> {
-            // Add your home button functionality here
             goHome();
         });
         secondBoxPanel.add(homeButton, BorderLayout.WEST);
@@ -89,11 +86,9 @@ public class UploadPageEncode extends JFrame {
         setLocationRelativeTo(null);
     }
     private void goHome() {
-        // Add your logic to navigate back to the Home.java class
-        // For example:
-        dispose(); // Close the current frame
-        Home home = new Home(); // Assuming Home is the name of your home class
-        home.setVisible(true); // Open the Home.java class
+        dispose(); 
+        Home home = new Home(); 
+        home.setVisible(true); // Home.java class
     }
     
 
@@ -111,7 +106,7 @@ public class UploadPageEncode extends JFrame {
         };
 
         panel.setLayout(new BorderLayout());
-        panel.setBorder(BorderFactory.createEmptyBorder(10, 20, 10, 20)); // Adjust border size
+        panel.setBorder(BorderFactory.createEmptyBorder(10, 20, 10, 20)); 
 
         return panel;
     }
@@ -130,7 +125,7 @@ public class UploadPageEncode extends JFrame {
         };
 
         panel.setLayout(new BorderLayout());
-        panel.setBorder(BorderFactory.createEmptyBorder(90, 90, 90, 90)); // Adjust border size
+        panel.setBorder(BorderFactory.createEmptyBorder(90, 90, 90, 90)); 
 
         DropTarget dropTarget = new DropTarget(panel, new DropTargetAdapter() {
             @Override
@@ -157,7 +152,6 @@ public class UploadPageEncode extends JFrame {
     }
 
     private void openKeyDialog() {
-        // Add your key copy functionality here
         String key = generateKey();
         StringSelection stringSelection = new StringSelection(key);
         Clipboard clipboard = Toolkit.getDefaultToolkit().getSystemClipboard();
@@ -223,7 +217,7 @@ public class UploadPageEncode extends JFrame {
 
     private KeyPair generateKeyPair() throws NoSuchAlgorithmException {
         KeyPairGenerator keyPairGenerator = KeyPairGenerator.getInstance(ALGORITHM);
-        keyPairGenerator.initialize(2048); // Adjust the key size as needed
+        keyPairGenerator.initialize(2048); // 2048 bits key size
         return keyPairGenerator.generateKeyPair();
     }
 
@@ -234,8 +228,6 @@ public class UploadPageEncode extends JFrame {
     }
 
     private byte[] xorOperation(byte[] data) {
-        // TODO: Implement XOR logic here
-        // Example: XOR each byte with a constant value
         byte xorKey = (byte) 0xAA;
     
         for (int i = 0; i < data.length; i++) {
@@ -307,8 +299,6 @@ public class UploadPageEncode extends JFrame {
 
 
     private Path saveEncryptedImage(byte[] encryptedImage) {
-        // TODO: Save the encrypted image to a file
-        // Example: Save the byte array to a file using java.nio.file.Path
         Path filePath = Paths.get("C:/Users/akank/OneDrive/Documents/projects/Digital-Steganography-Using-JAVA/saved/image.png");
         try {
             Files.write(filePath, encryptedImage, StandardOpenOption.CREATE, StandardOpenOption.WRITE);
